@@ -1,5 +1,13 @@
-import type { BMRTDEEData, HealthGoal, UnitSystem } from '../types';
-import { ACTIVITY_MULTIPLIERS, HEALTH_GOALS } from './constants';
+import type {
+  BMRTDEEData,
+  CardioExertion,
+  CardioSession,
+  EffortLevel,
+  HealthGoal,
+  UnitSystem,
+  UserProfile,
+} from '../types';
+import { ACTIVITY_MULTIPLIERS, HEALTH_GOALS, TRIMP_RECOVERY_TIERS } from './constants';
 
 export const convertToMetric = (value: number, system: UnitSystem, type: 'weight' | 'height'): number => {
   if (system === 'metric') return value;
@@ -100,4 +108,81 @@ export const calculatePace = (distance: number, duration: number): string => {
 export const calculateAverageSpeed = (distance: number, duration: number): number => {
   if (duration <= 0) return 0;
   return Math.round((distance / duration) * 60 * 100) / 100;
+};
+
+/**
+ * Estimate maximum heart rate from age using the Tanaka formula
+ * (208 − 0.7 × age), which is more accurate across ages than 220 − age.
+ */
+export const estimateMaxHR = (age: number): number => Math.round(208 - 0.7 * age);
+
+/** Sensible default resting HR when the user hasn't entered one. */
+export const DEFAULT_RESTING_HR = 65;
+
+/**
+ * Heart-rate-reserve fraction (Karvonen): how hard the session was relative to
+ * the gap between resting and max HR. Clamped to 0-1.
+ */
+export const heartRateReserveFraction = (
+  avgHR: number,
+  restingHR: number,
+  maxHR: number
+): number => {
+  const reserve = maxHR - restingHR;
+  if (reserve <= 0) return 0;
+  return Math.min(1, Math.max(0, (avgHR - restingHR) / reserve));
+};
+
+const effortLevelFromTrimp = (trimp: number): { level: EffortLevel; recoveryHours: number } => {
+  const tier = TRIMP_RECOVERY_TIERS.find((t) => trimp >= t.minTrimp) ?? TRIMP_RECOVERY_TIERS[TRIMP_RECOVERY_TIERS.length - 1];
+  return { level: tier.level, recoveryHours: tier.recoveryHours };
+};
+
+/**
+ * Score a cardio session's exertion using a Banister TRIMP model driven by
+ * heart-rate reserve, then bump it for elevation gain (climbing costs effort
+ * that pace alone misses). Returns the training-impulse score, the matching
+ * effort tier and the recommended whole-body recovery window.
+ */
+export const calculateCardioExertion = (
+  session: CardioSession,
+  profile: UserProfile | null
+): CardioExertion => {
+  const age = profile?.age ?? 30;
+  const restingHR = profile?.restingHeartRate ?? DEFAULT_RESTING_HR;
+  const maxHR = estimateMaxHR(age);
+
+  const hrrFraction = heartRateReserveFraction(session.avgHeartRate || 0, restingHR, maxHR);
+
+  // Banister TRIMP (male coefficients): duration × HRR × 0.64 × e^(1.92 × HRR)
+  const baseTrimp = session.duration * hrrFraction * 0.64 * Math.exp(1.92 * hrrFraction);
+
+  // Elevation adjustment: every 100 units (ft/m) of gain adds ~4% effort, capped at +40%.
+  const elevationFactor = 1 + Math.min(0.4, (session.elevationGain || 0) / 100 * 0.04);
+
+  const trimp = Math.round(baseTrimp * elevationFactor);
+  const { level, recoveryHours } = effortLevelFromTrimp(trimp);
+
+  return {
+    trimp,
+    hrrFraction,
+    effortLevel: level,
+    recoveryHours,
+  };
+};
+
+/** Human-friendly label for an effort tier. */
+export const effortLevelLabel = (level: EffortLevel): string => {
+  switch (level) {
+    case 'light':
+      return 'Light';
+    case 'moderate':
+      return 'Moderate';
+    case 'hard':
+      return 'Hard';
+    case 'very_hard':
+      return 'Very Hard';
+    case 'severe':
+      return 'Severe';
+  }
 };

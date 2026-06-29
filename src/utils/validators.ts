@@ -67,3 +67,24 @@ export const validateDuration = (duration: number): { valid: boolean; error?: st
   }
   return { valid: true };
 };
+
+export const validateRestingHeartRate = (hr: number): { valid: boolean; error?: string } => {
+  if (hr < 30 || hr > 120) {
+    return { valid: false, error: 'Resting heart rate must be between 30 and 120 bpm' };
+  }
+  return { valid: true };
+};
+
+export const validateAvgHeartRate = (hr: number): { valid: boolean; error?: string } => {
+  if (hr < 40 || hr > 220) {
+    return { valid: false, error: 'Average heart rate must be between 40 and 220 bpm' };
+  }
+  return { valid: true };
+};
+
+export const validateElevation = (elevation: number): { valid: boolean; error?: string } => {
+  if (elevation < 0 || elevation > 30000) {
+    return { valid: false, error: 'Elevation gain must be between 0 and 30000' };
+  }
+  return { valid: true };
+};

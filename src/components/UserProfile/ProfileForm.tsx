@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
 import type { UserProfile, HealthGoal, UnitSystem } from '../../types';
 import { HEALTH_GOALS } from '../../utils/constants';
-import { validateAge, validateWeight, validateHeight } from '../../utils/validators';
+import {
+  validateAge,
+  validateWeight,
+  validateHeight,
+  validateRestingHeartRate,
+} from '../../utils/validators';
 
 interface ProfileFormProps {
   onSubmit: (profile: UserProfile) => void;
@@ -12,6 +17,9 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ onSubmit, initialData 
   const [age, setAge] = useState(initialData?.age || '');
   const [weight, setWeight] = useState(initialData?.weight || '');
   const [height, setHeight] = useState(initialData?.height || '');
+  const [restingHeartRate, setRestingHeartRate] = useState(
+    initialData?.restingHeartRate || ''
+  );
   const [goal, setGoal] = useState<HealthGoal>(initialData?.goal || 'strength');
   const [unitSystem, setUnitSystem] = useState<UnitSystem>(initialData?.unitSystem || 'imperial');
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -32,6 +40,13 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ onSubmit, initialData 
     if (!weightValidation.valid) newErrors.weight = weightValidation.error || '';
     if (!heightValidation.valid) newErrors.height = heightValidation.error || '';
 
+    // Resting HR is optional; only validate when provided.
+    const restingNum = restingHeartRate === '' ? undefined : Number(restingHeartRate);
+    if (restingNum !== undefined) {
+      const restingValidation = validateRestingHeartRate(restingNum);
+      if (!restingValidation.valid) newErrors.restingHeartRate = restingValidation.error || '';
+    }
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
@@ -41,6 +56,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ onSubmit, initialData 
       age: ageNum,
       weight: weightNum,
       height: heightNum,
+      restingHeartRate: restingNum,
       goal,
       unitSystem,
       createdAt: initialData?.createdAt || new Date().toISOString(),
@@ -95,6 +111,23 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ onSubmit, initialData 
             placeholder="Enter your height"
           />
           {errors.height && <p className="text-red-500 text-sm mt-1">{errors.height}</p>}
+        </div>
+
+        <div>
+          <label className="label">Resting Heart Rate (bpm)</label>
+          <input
+            type="number"
+            value={restingHeartRate}
+            onChange={(e) => {
+              setRestingHeartRate(e.target.value);
+              setErrors({ ...errors, restingHeartRate: '' });
+            }}
+            className="input"
+            placeholder="Optional — improves effort scoring"
+          />
+          {errors.restingHeartRate && (
+            <p className="text-red-500 text-sm mt-1">{errors.restingHeartRate}</p>
+          )}
         </div>
 
         <div>

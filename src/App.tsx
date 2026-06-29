@@ -3,7 +3,6 @@ import type { UserProfile } from './types';
 import { AppProvider } from './context/AppContext';
 import { WorkoutProvider } from './context/WorkoutContext';
 import { DietProvider } from './context/DietContext';
-import { RecoveryProvider } from './context/RecoveryContext';
 import { Layout } from './components/Layout/Layout';
 import { Dashboard } from './components/Dashboard/Dashboard';
 import { ProfileForm } from './components/UserProfile/ProfileForm';
@@ -13,7 +12,7 @@ import { MachineTracker } from './components/Fitness/MachineTracker';
 import { CardioTracker } from './components/Fitness/CardioTracker';
 import { CrossTrainingTracker } from './components/Fitness/CrossTrainingTracker';
 import { MacroTracker } from './components/Diet/MacroTracker';
-import { RecoveryTimer } from './components/Recovery/RecoveryTimer';
+import { RecoveryDashboard } from './components/Recovery/RecoveryDashboard';
 import { useAppContext } from './context/AppContext';
 import './styles/globals.css';
 
@@ -77,7 +76,7 @@ const AppContent: React.FC = () => {
         return <MacroTracker />;
 
       case 'recovery':
-        return <RecoveryTimer />;
+        return <RecoveryDashboard />;
 
       case 'settings':
         return (
@@ -135,9 +134,7 @@ function App() {
     <AppProvider>
       <WorkoutProvider>
         <DietProvider>
-          <RecoveryProvider>
-            <AppContent />
-          </RecoveryProvider>
+          <AppContent />
         </DietProvider>
       </WorkoutProvider>
     </AppProvider>

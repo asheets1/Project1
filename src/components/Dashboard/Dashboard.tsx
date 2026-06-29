@@ -2,10 +2,11 @@ import React, { useMemo } from 'react';
 import { useAppContext } from '../../context/AppContext';
 import { useWorkoutContext } from '../../context/WorkoutContext';
 import { useDietContext } from '../../context/DietContext';
-import { Dumbbell, Apple, Zap, AlertTriangle } from 'lucide-react';
+import { Dumbbell, Apple, Zap, AlertTriangle, HeartPulse } from 'lucide-react';
 import { SafetyWarnings } from '../UserProfile/SafetyWarnings';
 import { useSafetyCheck } from '../../hooks/useSafetyCheck';
 import { calculateBMR, calculateTDEE } from '../../utils/calculations';
+import { computeReadiness } from '../../utils/recovery';
 
 export const Dashboard: React.FC = () => {
   const { userProfile } = useAppContext();
@@ -47,8 +48,20 @@ export const Dashboard: React.FC = () => {
   const safetyWarnings = useSafetyCheck(
     userProfile,
     [...bodyweightExercises, ...machineExercises],
-    tdeeData ? tdeeData.tdee - todayStats.calories : 0
+    tdeeData ? tdeeData.tdee - todayStats.calories : 0,
+    cardioSessions
   );
+
+  const readiness = useMemo(
+    () => computeReadiness(cardioSessions, machineExercises, userProfile),
+    [cardioSessions, machineExercises, userProfile]
+  );
+
+  const readinessStyle = {
+    ready: { dot: 'bg-green-500', text: 'text-green-600', label: 'Ready' },
+    caution: { dot: 'bg-amber-500', text: 'text-amber-600', label: 'Caution' },
+    rest: { dot: 'bg-red-500', text: 'text-red-600', label: 'Rest' },
+  }[readiness.status];
 
   return (
     <div className="space-y-8">
@@ -120,17 +133,17 @@ export const Dashboard: React.FC = () => {
         </div>
 
         <div className="card p-6">
-          <h3 className="font-semibold mb-4">Status</h3>
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-green-500" />
-              <p className="text-sm">Active today</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-blue-500" />
-              <p className="text-sm">On track</p>
-            </div>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold">Recovery</h3>
+            <HeartPulse className="text-red-500" />
           </div>
+          <div className="flex items-center gap-2 mb-2">
+            <div className={`w-2.5 h-2.5 rounded-full ${readinessStyle.dot}`} />
+            <p className={`text-xl font-bold ${readinessStyle.text}`}>{readinessStyle.label}</p>
+          </div>
+          <p className="text-xs text-text/60">
+            Rest ~{readiness.recommendedRestHours}h · load {readiness.recentLoad}
+          </p>
         </div>
       </div>
 

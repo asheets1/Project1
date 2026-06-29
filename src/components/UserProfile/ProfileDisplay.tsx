@@ -1,7 +1,13 @@
 import React, { useMemo } from 'react';
 import type { UserProfile } from '../../types';
-import { calculateBMR, calculateTDEE, calculateMacroTargets } from '../../utils/calculations';
-import { Activity, Zap } from 'lucide-react';
+import {
+  calculateBMR,
+  calculateTDEE,
+  calculateMacroTargets,
+  estimateMaxHR,
+  DEFAULT_RESTING_HR,
+} from '../../utils/calculations';
+import { Activity, Zap, HeartPulse } from 'lucide-react';
 
 interface ProfileDisplayProps {
   profile: UserProfile;
@@ -16,6 +22,10 @@ export const ProfileDisplay: React.FC<ProfileDisplayProps> = ({ profile }) => {
   const macros = useMemo(() => {
     return calculateMacroTargets(bmrTdee.tdee, profile.goal);
   }, [bmrTdee.tdee, profile.goal]);
+
+  const maxHR = estimateMaxHR(profile.age);
+  const restingHR = profile.restingHeartRate ?? DEFAULT_RESTING_HR;
+  const hasRestingHR = profile.restingHeartRate != null;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -35,6 +45,34 @@ export const ProfileDisplay: React.FC<ProfileDisplayProps> = ({ profile }) => {
         </div>
         <p className="text-4xl font-bold text-secondary mb-2">{bmrTdee.tdee}</p>
         <p className="text-text/60">Calories (with activity)</p>
+      </div>
+
+      <div className="card p-6 md:col-span-2">
+        <div className="flex items-center gap-3 mb-4">
+          <HeartPulse className="text-red-500" />
+          <h3 className="text-lg font-semibold">Heart Rate Zones</h3>
+        </div>
+        <div className="grid grid-cols-3 gap-4 text-center">
+          <div>
+            <p className="text-2xl font-bold text-primary">{maxHR}</p>
+            <p className="text-sm text-text/60">Est. Max HR (bpm)</p>
+          </div>
+          <div>
+            <p className="text-2xl font-bold text-secondary">{restingHR}</p>
+            <p className="text-sm text-text/60">
+              Resting HR{!hasRestingHR && <span className="text-text/40"> (default)</span>}
+            </p>
+          </div>
+          <div>
+            <p className="text-2xl font-bold text-accent">{maxHR - restingHR}</p>
+            <p className="text-sm text-text/60">HR Reserve</p>
+          </div>
+        </div>
+        {!hasRestingHR && (
+          <p className="text-xs text-text/50 mt-3">
+            Add your resting heart rate (edit profile) for more accurate cardio effort &amp; recovery scoring.
+          </p>
+        )}
       </div>
 
       <div className="card p-6 md:col-span-2">
