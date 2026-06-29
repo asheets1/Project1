@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { UserProfile } from './types';
 import { AppProvider } from './context/AppContext';
+import { AuthProvider } from './context/AuthContext';
 import { WorkoutProvider } from './context/WorkoutContext';
 import { DietProvider } from './context/DietContext';
 import { Layout } from './components/Layout/Layout';
@@ -131,13 +132,15 @@ const AppContent: React.FC = () => {
 
 function App() {
   return (
-    <AppProvider>
-      <WorkoutProvider>
-        <DietProvider>
-          <AppContent />
-        </DietProvider>
-      </WorkoutProvider>
-    </AppProvider>
+    <AuthProvider>
+      <AppProvider>
+        <WorkoutProvider>
+          <DietProvider>
+            <AppContent />
+          </DietProvider>
+        </WorkoutProvider>
+      </AppProvider>
+    </AuthProvider>
   );
 }
 

@@ -1,6 +1,8 @@
 # 💪 Workout & Diet Planner - Modern SPA
 
-A high-fidelity, fully client-side single-page web application for comprehensive fitness tracking, nutrition logging, and recovery management. All data persists locally in your browser using localStorage.
+A high-fidelity single-page web application for comprehensive fitness tracking, nutrition logging, and recovery management. Data persists locally in your browser using localStorage, with **optional cross-device sync and login** via Supabase.
+
+> **Cross-device sync (optional):** Out of the box the app is local-only (single device). To sync your data across devices with secure login, follow [`docs/SUPABASE_SETUP.md`](docs/SUPABASE_SETUP.md). Without it, nothing breaks — the app simply stays local-only.
 
 ## ✨ Features
 

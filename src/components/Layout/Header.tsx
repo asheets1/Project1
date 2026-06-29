@@ -1,6 +1,7 @@
 import React from 'react';
 import { Moon, Sun, Menu, X } from 'lucide-react';
 import { useTheme } from '../../hooks/useTheme';
+import { AccountButton } from '../Auth/AccountButton';
 
 interface HeaderProps {
   onMenuToggle: () => void;
@@ -26,7 +27,8 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMenuOpen }) => {
             </h1>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <AccountButton />
             <button
               onClick={toggleTheme}
               className="p-2 hover:bg-primary/10 rounded-lg transition-colors"
