@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import type { Meal } from '../../types';
 import { useDietContext } from '../../context/DietContext';
 import { useAppContext } from '../../context/AppContext';
-import { calculateTDEE, calculateMacroTargets } from '../../utils/calculations';
+import { calculateBMR, calculateTDEE, calculateMacroTargets } from '../../utils/calculations';
 import { v4 as uuidv4 } from '../../utils/uuid';
 
 export const MacroTracker: React.FC = () => {
@@ -14,12 +14,22 @@ export const MacroTracker: React.FC = () => {
   const today = new Date().toISOString().split('T')[0];
   const dailyNutrition = useMemo(() => getDailyNutrition(today), [getDailyNutrition, today]);
 
-  const targets = useMemo(() => {
+  const tdeeTarget = useMemo(() => {
     if (!userProfile) return null;
-    const bmr = 1800; // Placeholder
-    const tdee = calculateTDEE(bmr, userProfile.goal).tdee;
-    return calculateMacroTargets(tdee, userProfile.goal);
+    const bmr = calculateBMR(
+      userProfile.age,
+      userProfile.weight,
+      userProfile.height,
+      'male',
+      userProfile.unitSystem
+    );
+    return calculateTDEE(bmr, userProfile.goal).tdee;
   }, [userProfile]);
+
+  const targets = useMemo(() => {
+    if (!userProfile || tdeeTarget == null) return null;
+    return calculateMacroTargets(tdeeTarget, userProfile.goal);
+  }, [userProfile, tdeeTarget]);
 
   const [formData, setFormData] = useState({
     foodName: '',
@@ -88,7 +98,9 @@ export const MacroTracker: React.FC = () => {
         <div className="card p-4">
           <p className="text-text/60 text-sm mb-2">Total Calories</p>
           <p className="text-3xl font-bold">{dailyNutrition.totalCalories}</p>
-          {targets && <p className="text-xs text-text/40 mt-1">~2000 daily target</p>}
+          {tdeeTarget != null && (
+            <p className="text-xs text-text/40 mt-1">{tdeeTarget} cal daily target</p>
+          )}
         </div>
         <div className="card p-4">
           <p className="text-text/60 text-sm mb-2">Protein</p>

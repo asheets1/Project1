@@ -54,42 +54,33 @@ export const calculateTDEE = (
   };
 };
 
+// Atwater energy values — calories per gram of each macronutrient.
+export const CALORIES_PER_GRAM = { protein: 4, carbs: 4, fat: 9 } as const;
+
+// Share of total daily calories allocated to each macro, per goal.
+// Each set sums to 1.0 (100% of calories).
+const MACRO_SPLITS: Record<HealthGoal, { protein: number; carbs: number; fat: number }> = {
+  strength: { protein: 0.3, carbs: 0.45, fat: 0.25 },
+  hypertrophy: { protein: 0.35, carbs: 0.45, fat: 0.2 },
+  endurance: { protein: 0.25, carbs: 0.6, fat: 0.15 },
+  crosstraining: { protein: 0.28, carbs: 0.5, fat: 0.22 },
+};
+
+/**
+ * Daily macro targets in GRAMS for a given calorie budget (TDEE) and goal.
+ * Each macro's calorie share is converted to grams via its calories-per-gram
+ * value (protein/carbs = 4, fat = 9) — not returned as raw calories.
+ */
 export const calculateMacroTargets = (
   tdee: number,
   goal: HealthGoal
 ): { protein: number; carbs: number; fat: number } => {
-  switch (goal) {
-    case 'strength':
-      return {
-        protein: Math.round(tdee * 0.3), // 30% protein
-        carbs: Math.round(tdee * 0.45), // 45% carbs
-        fat: Math.round(tdee * 0.25), // 25% fat
-      };
-    case 'hypertrophy':
-      return {
-        protein: Math.round(tdee * 0.35), // 35% protein
-        carbs: Math.round(tdee * 0.45), // 45% carbs
-        fat: Math.round(tdee * 0.2), // 20% fat
-      };
-    case 'endurance':
-      return {
-        protein: Math.round(tdee * 0.25), // 25% protein
-        carbs: Math.round(tdee * 0.6), // 60% carbs
-        fat: Math.round(tdee * 0.15), // 15% fat
-      };
-    case 'crosstraining':
-      return {
-        protein: Math.round(tdee * 0.28), // 28% protein
-        carbs: Math.round(tdee * 0.5), // 50% carbs
-        fat: Math.round(tdee * 0.22), // 22% fat
-      };
-    default:
-      return {
-        protein: Math.round(tdee * 0.3),
-        carbs: Math.round(tdee * 0.45),
-        fat: Math.round(tdee * 0.25),
-      };
-  }
+  const split = MACRO_SPLITS[goal] ?? MACRO_SPLITS.strength;
+  return {
+    protein: Math.round((tdee * split.protein) / CALORIES_PER_GRAM.protein),
+    carbs: Math.round((tdee * split.carbs) / CALORIES_PER_GRAM.carbs),
+    fat: Math.round((tdee * split.fat) / CALORIES_PER_GRAM.fat),
+  };
 };
 
 export const calculateCalorieDeficit = (tdee: number, consumedCalories: number): number => {
