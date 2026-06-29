@@ -1,6 +1,7 @@
 export type HealthGoal = 'strength' | 'endurance' | 'hypertrophy' | 'crosstraining';
 export type UnitSystem = 'metric' | 'imperial';
 export type ExerciseDifficulty = 'beginner' | 'intermediate' | 'advanced';
+export type Sex = 'male' | 'female';
 
 export type MuscleGroup =
   | 'chest'
@@ -23,6 +24,8 @@ export interface UserProfile {
   height: number;
   goal: HealthGoal;
   unitSystem: UnitSystem;
+  /** Biological sex, used for the BMR formula. Defaults to male if unset. */
+  sex?: Sex;
   /** Resting heart rate (bpm), used for Heart-Rate-Reserve exertion scoring. */
   restingHeartRate?: number;
   createdAt: string;

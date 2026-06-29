@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { UserProfile, HealthGoal, UnitSystem } from '../../types';
+import type { UserProfile, HealthGoal, UnitSystem, Sex } from '../../types';
 import { HEALTH_GOALS } from '../../utils/constants';
 import {
   validateAge,
@@ -20,6 +20,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ onSubmit, initialData 
   const [restingHeartRate, setRestingHeartRate] = useState(
     initialData?.restingHeartRate || ''
   );
+  const [sex, setSex] = useState<Sex>(initialData?.sex || 'male');
   const [goal, setGoal] = useState<HealthGoal>(initialData?.goal || 'strength');
   const [unitSystem, setUnitSystem] = useState<UnitSystem>(initialData?.unitSystem || 'imperial');
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -56,6 +57,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ onSubmit, initialData 
       age: ageNum,
       weight: weightNum,
       height: heightNum,
+      sex,
       restingHeartRate: restingNum,
       goal,
       unitSystem,
@@ -128,6 +130,18 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ onSubmit, initialData 
           {errors.restingHeartRate && (
             <p className="text-red-500 text-sm mt-1">{errors.restingHeartRate}</p>
           )}
+        </div>
+
+        <div>
+          <label className="label">Sex (for BMR calculation)</label>
+          <select
+            value={sex}
+            onChange={(e) => setSex(e.target.value as Sex)}
+            className="input"
+          >
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
         </div>
 
         <div>

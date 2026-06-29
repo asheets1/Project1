@@ -15,7 +15,7 @@ interface ProfileDisplayProps {
 
 export const ProfileDisplay: React.FC<ProfileDisplayProps> = ({ profile }) => {
   const bmrTdee = useMemo(() => {
-    const bmr = calculateBMR(profile.age, profile.weight, profile.height, 'male', profile.unitSystem);
+    const bmr = calculateBMR(profile.age, profile.weight, profile.height, profile.sex ?? 'male', profile.unitSystem);
     return calculateTDEE(bmr, profile.goal);
   }, [profile]);
 
@@ -111,6 +111,10 @@ export const ProfileDisplay: React.FC<ProfileDisplayProps> = ({ profile }) => {
             <p className="text-lg font-semibold">
               {profile.height} {profile.unitSystem === 'imperial' ? 'in' : 'cm'}
             </p>
+          </div>
+          <div>
+            <p className="text-sm text-text/60">Sex</p>
+            <p className="text-lg font-semibold capitalize">{profile.sex ?? 'male'}</p>
           </div>
           <div>
             <p className="text-sm text-text/60">Goal</p>

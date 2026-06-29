@@ -39,7 +39,7 @@ export const Dashboard: React.FC = () => {
       userProfile.age,
       userProfile.weight,
       userProfile.height,
-      'male',
+      userProfile.sex ?? 'male',
       userProfile.unitSystem
     );
     return calculateTDEE(bmr, userProfile.goal);
