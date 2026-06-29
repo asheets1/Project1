@@ -14,6 +14,7 @@ import { CardioTracker } from './components/Fitness/CardioTracker';
 import { CrossTrainingTracker } from './components/Fitness/CrossTrainingTracker';
 import { MacroTracker } from './components/Diet/MacroTracker';
 import { RecoveryDashboard } from './components/Recovery/RecoveryDashboard';
+import { WorkoutCalendar } from './components/Calendar/WorkoutCalendar';
 import { useAppContext } from './context/AppContext';
 import './styles/globals.css';
 
@@ -72,6 +73,9 @@ const AppContent: React.FC = () => {
             </div>
           </div>
         );
+
+      case 'calendar':
+        return <WorkoutCalendar />;
 
       case 'diet':
         return <MacroTracker />;

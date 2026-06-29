@@ -19,6 +19,7 @@ export const BodyweightTracker: React.FC = () => {
     const exercise: BodyweightExercise = {
       id: uuidv4(),
       date: today,
+      loggedAt: new Date().toISOString(),
       name: data.exerciseName,
       reps: Number(data.reps),
       sets: Number(data.sets),

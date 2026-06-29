@@ -37,6 +37,8 @@ export interface BMRTDEEData {
 export interface BodyweightExercise {
   id: string;
   date: string;
+  /** Full ISO timestamp the entry was logged. */
+  loggedAt?: string;
   name: string;
   reps: number;
   sets: number;
@@ -87,7 +89,11 @@ export interface CardioSession {
 export interface CrossTrainingSession {
   id: string;
   date: string;
+  /** Full ISO timestamp the entry was logged. */
+  loggedAt?: string;
   name: string;
+  /** Free-text description of exercises included in the session. */
+  description?: string;
   exercises: (BodyweightExercise | MachineExercise | CardioSession)[];
   totalDuration: number;
   notes?: string;
@@ -142,6 +148,21 @@ export interface MuscleRecovery {
   /** Percentage recovered right now (0-100). */
   percentRecovered: number;
   status: 'recovered' | 'recovering' | 'fatigued';
+}
+
+/** Aggregated training activity for a single calendar day. */
+export interface DayActivity {
+  date: string; // YYYY-MM-DD
+  cardioCount: number;
+  strengthCount: number;
+  bodyweightCount: number;
+  crossCount: number;
+  mealCount: number;
+  /** Total training load logged that day. */
+  load: number;
+  /** Whether accumulated fatigue makes this a recommended rest day. */
+  restRecommended: boolean;
+  hasActivity: boolean;
 }
 
 /** Aggregate, whole-body readiness recommendation. */

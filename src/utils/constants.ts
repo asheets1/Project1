@@ -16,6 +16,12 @@ export const SAFETY_THRESHOLDS = {
   MAX_DAILY_LOAD_UNDERAGE: 180,
 };
 
+/**
+ * If the training load accumulated over the two days *before* a given day meets
+ * or exceeds this, that day is flagged on the calendar as a recommended rest day.
+ */
+export const REST_DAY_LOAD_THRESHOLD = 150;
+
 export const ACTIVITY_MULTIPLIERS = {
   sedentary: 1.2,
   light: 1.375,

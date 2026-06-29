@@ -7,6 +7,7 @@ import {
   User,
   Settings,
   LogOut,
+  CalendarDays,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -20,6 +21,7 @@ const MENU_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
   { id: 'profile', label: 'Profile', icon: User },
   { id: 'workout', label: 'Workouts', icon: Dumbbell },
+  { id: 'calendar', label: 'Calendar', icon: CalendarDays },
   { id: 'diet', label: 'Diet', icon: Apple },
   { id: 'recovery', label: 'Recovery', icon: Clock },
   { id: 'settings', label: 'Settings', icon: Settings },

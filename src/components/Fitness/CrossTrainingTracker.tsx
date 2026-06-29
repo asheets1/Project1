@@ -1,24 +1,30 @@
 import React, { useState } from 'react';
+import type { CrossTrainingSession } from '../../types';
 import { WorkoutForm } from './WorkoutForm';
+import { useWorkoutContext } from '../../context/WorkoutContext';
+import { Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from '../../utils/uuid';
 
 export const CrossTrainingTracker: React.FC = () => {
+  const { crossTrainingSessions, addCrossTrainingSession, removeCrossTrainingSession } =
+    useWorkoutContext();
   const [showForm, setShowForm] = useState(false);
-  const [sessions, setSessions] = useState<any[]>([]);
+
+  const today = new Date().toISOString().split('T')[0];
+  const todaySessions = crossTrainingSessions.filter((s) => s.date === today);
 
   const handleAddSession = (data: Record<string, any>) => {
-    const today = new Date().toISOString().split('T')[0];
-    setSessions([
-      ...sessions,
-      {
-        id: uuidv4(),
-        date: today,
-        name: data.sessionName,
-        duration: Number(data.duration),
-        exercises: data.exercises,
-        notes: data.notes,
-      },
-    ]);
+    const session: CrossTrainingSession = {
+      id: uuidv4(),
+      date: today,
+      loggedAt: new Date().toISOString(),
+      name: data.sessionName,
+      description: data.exercises || undefined,
+      exercises: [],
+      totalDuration: Number(data.duration),
+      notes: data.notes || undefined,
+    };
+    addCrossTrainingSession(session);
     setShowForm(false);
   };
 
@@ -48,21 +54,33 @@ export const CrossTrainingTracker: React.FC = () => {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {sessions.map((session) => (
+        {todaySessions.map((session) => (
           <div key={session.id} className="card p-4 hover:shadow-md transition-shadow">
-            <h4 className="font-semibold text-lg mb-2">{session.name}</h4>
+            <div className="flex justify-between items-start mb-2">
+              <h4 className="font-semibold text-lg">{session.name}</h4>
+              <button
+                onClick={() => removeCrossTrainingSession(session.id)}
+                className="text-red-500 hover:text-red-600 transition-colors"
+                aria-label="Delete session"
+              >
+                <Trash2 size={18} />
+              </button>
+            </div>
             <div className="space-y-2 text-sm">
               <p>
-                <span className="text-text/60">Duration:</span> <span className="font-medium">{session.duration} min</span>
+                <span className="text-text/60">Duration:</span>{' '}
+                <span className="font-medium">{session.totalDuration} min</span>
               </p>
-              {session.exercises && (
+              {session.description && (
                 <p>
-                  <span className="text-text/60">Exercises:</span> <span className="italic">{session.exercises}</span>
+                  <span className="text-text/60">Exercises:</span>{' '}
+                  <span className="italic">{session.description}</span>
                 </p>
               )}
               {session.notes && (
                 <p>
-                  <span className="text-text/60">Notes:</span> <span className="italic">{session.notes}</span>
+                  <span className="text-text/60">Notes:</span>{' '}
+                  <span className="italic">{session.notes}</span>
                 </p>
               )}
             </div>
@@ -70,7 +88,7 @@ export const CrossTrainingTracker: React.FC = () => {
         ))}
       </div>
 
-      {sessions.length === 0 && !showForm && (
+      {todaySessions.length === 0 && !showForm && (
         <div className="card p-12 text-center">
           <p className="text-text/60">No cross-training sessions logged. Mix and match your workouts!</p>
         </div>
